@@ -1,0 +1,81 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        ## USER SERVICE
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user-service/**
+          filters:
+            - StripPrefix=1
+        ## FUND TRANSFER SERVICE
+        - id: fund-transfer-service
+          uri: lb://fund-transfer-service
+          predicates:
+            - Path=/fund-transfer-service/**
+          filters:
+            - StripPrefix=1
+        ## CORE BANKING SERVICE
+        - id: core-banking-service
+          uri: lb://core-banking-service
+          predicates:
+            - Path=/core-banking-service/**
+          filters:
+            - StripPrefix=1
+        ## UTILITY PAYMENT SERVICE
+        - id: utility-payment-service
+          uri: lb://utility-payment-service
+          predicates:
+            - Path=/utility-payment-service/**
+          filters:
+            - StripPrefix=1
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: ${app.config.keycloak.url}/realms/${app.config.keycloak.realm}/protocol/openid-connect/token
+            authorization-uri: ${app.config.keycloak.url}/realms/${app.config.keycloak.realm}/protocol/openid-connect/auth
+            user-name-attribute: preferred_username
+            user-info-uri: ${app.config.keycloak.url}/realms/${app.config.keycloak.realm}/protocol/openid-connect/userinfo
+            jwk-set-uri: ${app.config.keycloak.url}/realms/${app.config.keycloak.realm}/protocol/openid-connect/certs
+            user-info-authentication-method: header
+        registration:
+          internet-banking-core-client:
+            provider: keycloak
+            client-id: banking-microservices
+            client-secret: iI8OsauU0we1PJpgb6pHkX53iluTGSBd
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
+            scope: openid
+      resource-server:
+        jwt:
+          jwk-set-uri: ${app.config.keycloak.url}/realms/${app.config.keycloak.realm}/protocol/openid-connect/certs
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org.springframework.cloud.gateway: TRACE
+    root: INFO
+
+app:
+  config:
+    keycloak:
+      url: http://localhost:8080
+      realm: banking-microservices
+
+info:
+  app:
+    name: ${spring.application.name}

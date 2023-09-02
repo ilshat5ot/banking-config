@@ -1,0 +1,36 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5430/core_user_service
+    username: postgres
+    password: Postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info
+
+info:
+  app:
+    name: ${spring.application.name}
+
+app:
+  config:
+    keycloak:
+      server-url: http://localhost:8080
+      realm: banking-microservices
+      clientId: banking-api-client
+      client-secret: EgPmek6rXtcRgDV1OFlej2HvC6JakoML
